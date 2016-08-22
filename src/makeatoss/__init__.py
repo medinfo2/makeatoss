@@ -24,9 +24,10 @@ def game():
         return pickle.loads(game_expr)
 
 
-def register(player):
+def register(name, func):
     game_ = game()
     # print game_.__dict__
+    player = Player(name, func)
     game_.register(player)
     memcached.set('game', pickle.dumps(game_))
 
