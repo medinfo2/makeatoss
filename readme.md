@@ -23,7 +23,7 @@ $ pip uninstall makeatoss
 各スクリプトで使う札を決定するduel関数を実装し、makeatoss.register関数に登録してください。
 下記に２つの異なる実装をしたPlayerを登録し、対戦をシミュレートする３つのスクリプトを示します。
 
-```team1.py
+```python
 import makeatoss
 from makeatoss import Player
 import logging
@@ -38,7 +38,7 @@ makeatoss.clear()
 makeatoss.register('team1', duel)
 ```
 
-```team2.py
+```python
 import makeatoss
 from makeatoss import Player
 import logging
@@ -51,7 +51,7 @@ def duel(status, opponent, history):
 makeatoss.register('team2', duel)
 ```
 
-```simulate.py
+```python
 game = makeatoss.game()
 
 print 'users: ', game.players
