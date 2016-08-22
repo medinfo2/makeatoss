@@ -5,13 +5,16 @@ import os
 import logging
 import random
 from copy import deepcopy
-import memcache
+import marshal
+import types
+
 
 class Card(object):
     '''
     じゃんけんカードの親クラス。カードの優劣で比較演算子を動かす定義を記述
     '''
-    def __init__(self, superior, inferior):
+    def __init__(self, name, superior, inferior):
+        self.name = name
         self.superior = superior
         self.inferior = inferior
 
@@ -33,32 +36,26 @@ class Card(object):
     def __le__(self, obj):
         return not isinstance(obj, self.inferior)
 
+    def __str__(self):
+        return self.name
+
 
 class Rock(Card):
     '''じゃんけんグー'''
     def __init__(self):
-        Card.__init__(self, Paper, Scissors)
-
-    def __str__(self):
-        return 'rock'
+        Card.__init__(self, 'rock', Paper, Scissors)
 
 
 class Scissors(Card):
     '''じゃんけんチョキ'''
     def __init__(self):
-        Card.__init__(self, Rock, Paper)
-
-    def __str__(self):
-        return 'scissors'
+        Card.__init__(self, 'scissors', Rock, Paper)
 
 
 class Paper(Card):
     '''じゃんけんパー'''
     def __init__(self):
-        Card.__init__(self, Scissors, Rock)
-
-    def __str__(self):
-        return 'paper'
+        Card.__init__(self, 'paper', Scissors, Rock)
 
 
 class PlayerStatus(object):
@@ -87,19 +84,31 @@ class PlayerStatus(object):
 
 
 class Game(object):
+    '''
+    ゲームを取り仕切るマネージャクラス
+    '''
     def __init__(self):
         self.players = set()
         self.history = []
         self.player_status = {}
 
     def register(self, player):
+        '''
+        プレーヤを登録します。同じプレーヤは一つしか登録できません。
+        '''
         self.players.add(player)
 
     def initialize(self):
+        '''
+        プレーヤの状態を初期化します。
+        '''
         for player in self.players:
             self.player_status[player] = PlayerStatus()
 
     def simulate(self):
+        '''
+        プレーヤの組み合わせを決め、一回勝負を行い、結果を更新します。initializeをしていないと動きません。
+        '''
         players = [
             player for player in self.players
             if self.player_status[player].cards and self.player_status[player].coins > 0
@@ -144,14 +153,51 @@ class Game(object):
 
 
 class Player(object):
-    def __init__(self, name):
+    '''
+    プレーヤの基底クラスです。duelを上書きして、それぞれのプレーヤを作ります。
+    '''
+    def __init__(self, name, func):
         self.name = name
+        self.func = func
 
     def duel(self, status, opponent, history):
-        return random.choice(status.cards)
+        '''
+        手札を決める関数です。以下の引数を持ちます。デフォルトの実装は手札からランダムに出すというものです。
+
+        status: 自分のstatusです。cardsとcoinsフィールドを持ちます。
+        opponent: 対戦相手の名前です。historyの検索に使います。
+        history: これまでの対戦履歴です。どの対戦者がどのカードを出したか履歴がわかります。
+        '''
+        return self.func(status, opponent, history)
 
     def __str__(self):
         return self.name
+
+    def __getstate__(self):
+        '''
+        pickle時に呼ばれる関数の実装。関数のコードをシリアライズする
+        '''
+        return {
+            'name': self.name,
+            'func': marshal.dumps(self.func.func_code)
+        }
+
+    def __setstate__(self, state):
+        '''
+        unpickle時に呼ばれる関数の実装。関数のコードから機能をデシリアライズする
+        '''
+        code = marshal.loads(state['func'])
+        func = types.FunctionType(code, globals())
+        self.__dict__.update({
+            'name': state['name'],
+            'func': func
+        })
+
+    def __hash__(self):
+        '''
+        一致判定で使う関数の定義。
+        '''
+        return hash(self.name)
 
 
 if __name__ == '__main__':
@@ -190,9 +236,9 @@ if __name__ == '__main__':
     print os.linesep * 2
     print "~~~ game simulate ~~~"
     game = Game()
-    game.register(Player('hoge'))
-    game.register(Player('foo'))
-    game.register(Player('bar'))
+    game.register(Player('hoge', lambda status, op, history: random.choice(status.cards)))
+    game.register(Player('foo', lambda status, op, history: random.choice(status.cards)))
+    game.register(Player('bar', lambda status, op, history: random.choice(status.cards)))
     game.initialize()
     print game
 
