@@ -9,7 +9,7 @@ setup(
   author='Osamu Sugiyama',
   author_email='sugiyama@kuhp.kyoto-u.ac.jp',
   package_dir={'': 'src'},
-  find_packages('src'),
+  packages=find_packages('src'),
   install_requires=(
     'python-memcached',
   )
