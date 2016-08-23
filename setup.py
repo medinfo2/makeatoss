@@ -12,5 +12,6 @@ setup(
   packages=find_packages('src'),
   install_requires=(
     'python-memcached',
-  )
+  ),
+  zipfile=False
 )

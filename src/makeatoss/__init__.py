@@ -3,11 +3,11 @@
 
 import memcache
 import logging
-import cPickle as pickle
+import pickle
 
-from main import Game
-from main import Player
-from main import Rock, Scissors, Paper
+from makeatoss.main import Game
+from makeatoss.main import Player
+from makeatoss.main import Rock, Scissors, Paper
 
 memcached = memcache.Client(["localhost"])
 

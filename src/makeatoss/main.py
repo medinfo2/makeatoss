@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 import os
 import logging
 import random
@@ -207,51 +208,51 @@ if __name__ == '__main__':
     scissors = Scissors()
     paper = Paper()
 
-    print "~~~ testing card behavior ~~~"
+    print("~~~ testing card behavior ~~~")
 
-    print "rock > scissors:\t", rock > scissors
-    print "rock < paper:\t\t", rock < paper
-    print "rock == rock:\t\t", rock == rock
+    print("rock > scissors:\t", rock > scissors)
+    print("rock < paper:\t\t", rock < paper)
+    print("rock == rock:\t\t", rock == rock)
 
-    print "scissors > paper:\t", scissors > paper
-    print "scissors < rock:\t", scissors < rock
-    print "scissors == scissors:\t", scissors == scissors
+    print("scissors > paper:\t", scissors > paper)
+    print("scissors < rock:\t", scissors < rock)
+    print("scissors == scissors:\t", scissors == scissors)
 
-    print "paper > rock:\t\t", paper > rock
-    print "paper < scissors:\t", paper < scissors
-    print "paper == paper:\t\t", paper == paper
+    print("paper > rock:\t\t", paper > rock)
+    print("paper < scissors:\t", paper < scissors)
+    print("paper == paper:\t\t", paper == paper)
 
-    print os.linesep * 2
-    print "~~~ testing player status behavior ~~~"
+    print(os.linesep * 2)
+    print("~~~ testing player status behavior ~~~")
     status = PlayerStatus()
-    print "pop rock: ", status.pop(Rock)
-    print "remains: ", status
-    print "pop scissors: ", status.pop(Scissors)
-    print "remains: ", status
-    print "pop paper: ", status.pop(Paper)
-    print "remains: ", status
+    print("pop rock: ", status.pop(Rock))
+    print("remains: ", status)
+    print("pop scissors: ", status.pop(Scissors))
+    print("remains: ", status)
+    print("pop paper: ", status.pop(Paper))
+    print("remains: ", status)
     status.coins -= 1
-    print "remove coin: ", status
+    print("remove coin: ", status)
 
-    print os.linesep * 2
-    print "~~~ game simulate ~~~"
+    print(os.linesep * 2)
+    print("~~~ game simulate ~~~")
     game = Game()
     game.register(Player('hoge', lambda status, op, history: random.choice(status.cards)))
     game.register(Player('foo', lambda status, op, history: random.choice(status.cards)))
     game.register(Player('bar', lambda status, op, history: random.choice(status.cards)))
     game.initialize()
-    print game
+    print(game)
 
-    print "wanna start game ? >",
+    print("wanna start game ? >", end="")
     raw_input()
 
     while True:
         try:
             if not game.simulate():
                 break
-            print game
+            print(game)
             raw_input()
-        except KeyboardInterrupt, e:
+        except KeyboardInterrupt:
             break
 
-    print "all tasks completed..."
+    print("all tasks completed...")
