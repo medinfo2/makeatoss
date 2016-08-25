@@ -5,10 +5,16 @@ import memcache
 import logging
 import pickle
 import random
+from pprint import pformat
 
-from makeatoss.main import Game
-from makeatoss.main import Player
-from makeatoss.main import Rock, Scissors, Paper
+try:
+    from makeatoss.main import Game
+    from makeatoss.main import Player
+    from makeatoss.main import Rock, Scissors, Paper
+except:
+    from main import Game
+    from main import Player
+    from main import Rock, Scissors, Paper
 
 memcached = memcache.Client(["localhost"])
 
@@ -46,20 +52,43 @@ def trial(player_list):
             game.register(Player(name, func))
     else:
         game.register(Player(player_list[0][0], player_list[0][1]))
-        game.register(Player(name, lambda x, y, z: random.choice(x.cards)))
-        game.register(Player(name, lambda x, y, z: random.choice(x.cards)))
+        game.register(Player('computer1', lambda x, y, z: random.choice(x.cards)))
+        game.register(Player('computer2', lambda x, y, z: random.choice(x.cards)))
 
+    game.initialize()
     while game.simulate(): print game
 
-    print "all match completed"
+    print("all match completed")
 
 
-def evaluate():
-    pass
+def evaluate(epochs=100):
+    game_ = game()
+    sum_of_coins = {}
+    for i in xrange(100):
+        game_.initialize()
+        while game_.simulate(): print game_
+        for player, status in game_.player_status.items():
+            if player.name in sum_of_coins:
+                sum_of_coins[player.name] += status.coins
+            else:
+                sum_of_coins[player.name] = status.coins
+    print pformat(sum_of_coins)
+
 
 def clear():
     memcached.delete('game')
 
 
 if __name__ == '__main__':
-    main()
+    def duel(status, opponent, history):
+        return status.cards[0]
+
+    trial([('sample', duel)])
+
+    clear()
+
+    register('sample', duel)
+    register('computer1', lambda x, y, z: random.choice(x.cards))
+    register('computer2', lambda x, y, z: random.choice(x.cards))
+
+    evaluate()
