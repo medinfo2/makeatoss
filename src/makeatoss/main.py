@@ -69,16 +69,22 @@ class PlayerStatus(object):
             Scissors(), Scissors(), Scissors(), Scissors(),
             Paper(), Paper(), Paper(), Paper()
         ]
-        self.coins = 4
+        self.coins = 3
 
     def pop(self, clazz):
         '''
         カードクラスを指定すると、持ち札から取り出す便利関数
         '''
+        target = None
         for card in self.cards:
-            if isinstance(card, clazz): break
-        self.cards.remove(card)
-        return card
+            if isinstance(card, clazz):
+                target = card
+                break
+        if target is None:
+            return None
+        else:
+            self.cards.remove(target)
+            return card
 
     def __str__(self):
         return '[%d] ' % self.coins + ', '.join([str(c) for c in self.cards])
@@ -89,7 +95,7 @@ class Game(object):
     ゲームを取り仕切るマネージャクラス
     '''
     def __init__(self):
-        self.players = set()
+        self.players = {}
         self.history = []
         self.player_status = {}
 
@@ -97,13 +103,13 @@ class Game(object):
         '''
         プレーヤを登録します。同じプレーヤは一つしか登録できません。
         '''
-        self.players.add(player)
+        self.players[player.name] = player
 
     def initialize(self):
         '''
         プレーヤの状態を初期化します。
         '''
-        for player in self.players:
+        for player in self.players.values():
             self.player_status[player] = PlayerStatus()
 
     def simulate(self):
@@ -111,7 +117,7 @@ class Game(object):
         プレーヤの組み合わせを決め、一回勝負を行い、結果を更新します。initializeをしていないと動きません。
         '''
         players = [
-            player for player in self.players
+            player for player in self.players.values()
             if self.player_status[player].cards and self.player_status[player].coins > 0
         ]
         if not players or len(players) < 2:
@@ -124,13 +130,21 @@ class Game(object):
             player2 = players[idx * 2 + 1]
 
             p1card = player1.duel(self.player_status[player1], player2.name, self.history)
-            self.player_status[player1].pop(p1card.__class__)
+            if self.player_status[player1].pop(p1card.__class__) is None \
+                or not issubclass(p1card.__class__, Card):
+                self.player_status[player1].coins = 0
             p2card = player2.duel(self.player_status[player2], player1.name, self.history)
-            self.player_status[player2].pop(p2card.__class__)
+            if self.player_status[player2].pop(p2card.__class__) is None \
+                or not issubclass(p2card.__class__, Card):
+                self.player_status[player2].coins = 0
             self.history.append({
                 player1.name: p1card,
                 player2.name: p2card
             })
+
+            if self.player_status[player1].coins == 0 or self.player_status[player2].coins == 0:
+                logging.debug('')
+                continue
 
             logging.debug('{} [{}] vs {} [{}]'.format(player1, p1card, player2, p2card))
             if p1card > p2card:
@@ -148,7 +162,7 @@ class Game(object):
 
     def __str__(self):
         buf = []
-        for player in self.players:
+        for player in self.players.values():
             buf.append('{}: {}'.format(player, self.player_status[player]))
         return os.linesep.join(buf)
 
