@@ -46,6 +46,7 @@ def remove(name):
 
 
 def trial(player_list):
+    logging.basicConfig(level=logging.DEBUG)
     game = Game()
     if len(player_list) > 1:
         for name, func in player_list:
@@ -56,9 +57,9 @@ def trial(player_list):
         game.register(Player('computer2', lambda x, y, z: random.choice(x.cards)))
 
     game.initialize()
-    while game.simulate(): print game
+    while game.simulate(): logging.debug(game)
 
-    print("all match completed")
+    logging.debug("all match completed")
 
 
 def evaluate(epochs=100):
