@@ -175,8 +175,10 @@ class Game(object):
 
     def __str__(self):
         buf = []
+        buf.append('現在の状況:')
         for player in self.players.values():
             buf.append('{}: {}'.format(player, self.player_status[player]))
+        buf.append(os.linesep)
         return os.linesep.join(buf)
 
 
