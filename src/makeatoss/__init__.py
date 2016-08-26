@@ -73,6 +73,7 @@ def evaluate(epochs=100):
             else:
                 sum_of_coins[player.name] = status.coins
     print pformat(sum_of_coins)
+    return sum_of_coins
 
 
 def clear():
