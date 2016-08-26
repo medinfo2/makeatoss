@@ -87,7 +87,13 @@ class PlayerStatus(object):
             return card
 
     def __str__(self):
-        return '[%d] ' % self.coins + ', '.join([str(c) for c in self.cards])
+        # return '[%d] ' % self.coins + ', '.join([str(c) for c in self.cards])
+        return 'コイン残数:{}, 残りのカード：グー[{}], チョキ[{}], パー[{}]'.format(
+            self.coins,
+            self.cards.count(Rock()),
+            self.cards.count(Scissors()),
+            self.cards.count(Paper())
+        )
 
 
 class Game(object):
@@ -146,17 +152,24 @@ class Game(object):
                 logging.debug('')
                 continue
 
-            logging.debug('{} [{}] vs {} [{}]'.format(player1, p1card, player2, p2card))
+            # logging.debug('{} [{}] vs {} [{}]'.format(player1, p1card, player2, p2card))
+            logging.debug('対戦： {} vs {}'.format(player1, player2))
+            logging.debug(
+                '手札： {} vs {}'.format(p1card, p2card)
+                    .replace('rock', 'グー')
+                    .replace('scissors', 'チョキ')
+                    .replace('paper', 'パー')
+            )
             if p1card > p2card:
-                logging.debug('{} wins'.format(player1))
+                logging.debug('{} が勝ちました'.format(player1))
                 self.player_status[player1].coins += 1
                 self.player_status[player2].coins -= 1
             elif p2card > p1card:
-                logging.debug('{} wins'.format(player2))
+                logging.debug('{} が勝ちました'.format(player2))
                 self.player_status[player1].coins -= 1
                 self.player_status[player2].coins += 1
             else:
-                logging.debug('draw')
+                logging.debug('勝負は引き分けになりました')
 
         return True
 
