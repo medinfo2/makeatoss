@@ -10,10 +10,12 @@ from pprint import pformat
 try:
     from makeatoss.main import Game
     from makeatoss.main import Player
+    from makeatoss.main import PlayerStatus
     from makeatoss.main import Rock, Scissors, Paper
 except:
     from main import Game
     from main import Player
+    from main import PlayerStatus
     from main import Rock, Scissors, Paper
 
 memcached = memcache.Client(["localhost"])
