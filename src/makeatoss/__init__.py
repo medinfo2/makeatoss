@@ -59,15 +59,27 @@ def trial(player_list):
     game.initialize()
     while game.simulate(): logging.debug(game)
 
+    max_coins = 0
+    winner = None
+    logging.debug('Final conditions: ')
+    for player, status in game.player_status.items():
+        logging.debug('{}: {}'.format(player, status.coins))
+        if status.coins > max_coins:
+            max_coins = status.coins
+            winner = player
+    logging.debug('Final winner: {}'.format(winner))
     logging.debug("all match completed")
 
 
-def evaluate(epochs=100):
+def evaluate(epochs=100, debug=True):
+    if not debug:
+        logging.basicConfig(level=logging.ERROR)
     game_ = game()
     sum_of_coins = {}
     for i in xrange(100):
         game_.initialize()
-        while game_.simulate(): print game_
+        while game_.simulate():
+            logging.debug(game_)
         for player, status in game_.player_status.items():
             if player.name in sum_of_coins:
                 sum_of_coins[player.name] += status.coins
@@ -94,3 +106,6 @@ if __name__ == '__main__':
     register('computer2', lambda x, y, z: random.choice(x.cards))
 
     evaluate()
+
+    sum_of_coins = evaluate(debug=False)
+    print (sum_of_coins)

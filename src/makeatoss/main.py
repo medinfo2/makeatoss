@@ -4,6 +4,7 @@
 from __future__ import print_function
 import os
 import logging
+import traceback
 import random
 from copy import deepcopy
 import marshal
@@ -75,16 +76,21 @@ class PlayerStatus(object):
         '''
         カードクラスを指定すると、持ち札から取り出す便利関数
         '''
-        target = None
-        for card in self.cards:
-            if isinstance(card, clazz):
-                target = card
-                break
-        if target is None:
+        try:
+            target = None
+            for card in self.cards:
+                if isinstance(card, clazz):
+                    target = card
+                    break
+            if target is None:
+                return None
+            else:
+                self.cards.remove(target)
+                return card
+        except:
+            logging.error(traceback.format_exc())
             return None
-        else:
-            self.cards.remove(target)
-            return card
+
 
     def __str__(self):
         # return '[%d] ' % self.coins + ', '.join([str(c) for c in self.cards])
@@ -136,12 +142,14 @@ class Game(object):
             player2 = players[idx * 2 + 1]
 
             p1card = player1.duel(self.player_status[player1], player2.name, self.history)
-            if self.player_status[player1].pop(p1card.__class__) is None \
-                or not issubclass(p1card.__class__, Card):
+            if not p1card or\
+                not issubclass(p1card.__class__, Card) \
+                or self.player_status[player1].pop(p1card.__class__) is None:
                 self.player_status[player1].coins = 0
             p2card = player2.duel(self.player_status[player2], player1.name, self.history)
-            if self.player_status[player2].pop(p2card.__class__) is None \
-                or not issubclass(p2card.__class__, Card):
+            if not p2card \
+                or not issubclass(p2card.__class__, Card) \
+                or self.player_status[player2].pop(p2card.__class__) is None:
                 self.player_status[player2].coins = 0
             self.history.append({
                 player1.name: p1card,
