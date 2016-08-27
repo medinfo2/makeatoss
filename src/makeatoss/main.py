@@ -131,7 +131,7 @@ class Game(object):
             return False
 
         random.shuffle(players)
-        for idx in range(len(self.player_status) / 2):
+        for idx in range(len(players) / 2):
             player1 = players[idx * 2]
             player2 = players[idx * 2 + 1]
 
