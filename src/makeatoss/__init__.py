@@ -6,6 +6,7 @@ import logging
 import pickle
 import random
 from pprint import pformat
+from StringIO import StringIO
 
 try:
     from makeatoss.main import Game
@@ -74,13 +75,17 @@ def trial(player_list):
 
 
 def evaluate(epochs=100, debug=True):
-    if not debug:
-        logging.basicConfig(level=logging.ERROR)
+    logger = logging.getLogger('evaluate')
+    logger.setLevel(logging.DEBUG)
+    stream = StringIO()
+    handler = logging.StreamHandler(stream)
+    logger.addHandler(handler)
+
     game_ = game()
     sum_of_coins = {}
     for i in xrange(100):
         game_.initialize()
-        while game_.simulate():
+        while game_.simulate(logger=logger):
             logging.debug(game_)
         for player, status in game_.player_status.items():
             if player.name in sum_of_coins:
@@ -89,6 +94,9 @@ def evaluate(epochs=100, debug=True):
                 sum_of_coins[player.name] = status.coins
     print pformat(sum_of_coins)
     return sum_of_coins
+
+    if debug:
+        print stream.read()
 
 
 def clear():

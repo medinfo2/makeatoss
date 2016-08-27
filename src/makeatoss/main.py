@@ -124,16 +124,18 @@ class Game(object):
         for player in self.players.values():
             self.player_status[player] = PlayerStatus()
 
-    def simulate(self):
+    def simulate(self, logger=None):
         '''
         プレーヤの組み合わせを決め、一回勝負を行い、結果を更新します。initializeをしていないと動きません。
         '''
+        if logger is None:
+            logger = logging.root
         players = [
             player for player in self.players.values()
             if self.player_status[player].cards and self.player_status[player].coins > 0
         ]
         if not players or len(players) < 2:
-            logging.debug('no more matches enabled.')
+            logger.debug('no more matches enabled.')
             return False
 
         random.shuffle(players)
@@ -141,12 +143,19 @@ class Game(object):
             player1 = players[idx * 2]
             player2 = players[idx * 2 + 1]
 
-            p1card = player1.duel(self.player_status[player1], player2.name, self.history)
+            try:
+                p1card = player1.duel(self.player_status[player1], player2.name, self.history)
+            except:
+                p1card = None
+
             if not p1card or\
                 not issubclass(p1card.__class__, Card) \
                 or self.player_status[player1].pop(p1card.__class__) is None:
                 self.player_status[player1].coins = 0
-            p2card = player2.duel(self.player_status[player2], player1.name, self.history)
+            try:
+                p2card = player2.duel(self.player_status[player2], player1.name, self.history)
+            except:
+                p2card = None
             if not p2card \
                 or not issubclass(p2card.__class__, Card) \
                 or self.player_status[player2].pop(p2card.__class__) is None:
@@ -157,33 +166,33 @@ class Game(object):
             })
 
             if self.player_status[player1].coins == 0:
-                logging.debug('対戦： {} vs {}'.format(player1, player2))
-                logging.debug('プレーヤ{}が反則により負けました'.format(player1))
+                logger.debug('対戦： {} vs {}'.format(player1, player2))
+                logger.debug('プレーヤ{}が反則により負けました'.format(player1))
                 continue
 
             if self.player_status[player2].coins == 0:
-                logging.debug('対戦： {} vs {}'.format(player1, player2))
-                logging.debug('プレーヤ{}が反則により負けました'.format(player1))
+                logger.debug('対戦： {} vs {}'.format(player1, player2))
+                logger.debug('プレーヤ{}が反則により負けました'.format(player1))
                 continue
 
-            # logging.debug('{} [{}] vs {} [{}]'.format(player1, p1card, player2, p2card))
-            logging.debug('対戦： {} vs {}'.format(player1, player2))
-            logging.debug(
+            # logger.debug('{} [{}] vs {} [{}]'.format(player1, p1card, player2, p2card))
+            logger.debug('対戦： {} vs {}'.format(player1, player2))
+            logger.debug(
                 '手札： {} vs {}'.format(p1card, p2card)
                     .replace('rock', 'グー')
                     .replace('scissors', 'チョキ')
                     .replace('paper', 'パー')
             )
             if p1card > p2card:
-                logging.debug('{} が勝ちました'.format(player1))
+                logger.debug('{} が勝ちました'.format(player1))
                 self.player_status[player1].coins += 1
                 self.player_status[player2].coins -= 1
             elif p2card > p1card:
-                logging.debug('{} が勝ちました'.format(player2))
+                logger.debug('{} が勝ちました'.format(player2))
                 self.player_status[player1].coins -= 1
                 self.player_status[player2].coins += 1
             else:
-                logging.debug('勝負は引き分けになりました')
+                logger.debug('勝負は引き分けになりました')
 
         return True
 
