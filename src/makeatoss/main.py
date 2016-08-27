@@ -156,8 +156,14 @@ class Game(object):
                 player2.name: p2card
             })
 
-            if self.player_status[player1].coins == 0 or self.player_status[player2].coins == 0:
-                logging.debug('')
+            if self.player_status[player1].coins == 0:
+                logging.debug('対戦： {} vs {}'.format(player1, player2))
+                logging.debug('プレーヤ{}が反則により負けました'.format(player1))
+                continue
+
+            if self.player_status[player2].coins == 0:
+                logging.debug('対戦： {} vs {}'.format(player1, player2))
+                logging.debug('プレーヤ{}が反則により負けました'.format(player1))
                 continue
 
             # logging.debug('{} [{}] vs {} [{}]'.format(player1, p1card, player2, p2card))
