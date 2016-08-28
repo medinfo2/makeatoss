@@ -221,7 +221,10 @@ class Player(object):
         opponent: 対戦相手の名前です。historyの検索に使います。
         history: これまでの対戦履歴です。どの対戦者がどのカードを出したか履歴がわかります。
         '''
-        return self.func(status, opponent, history)
+        try:
+            return self.func(status, opponent, history)
+        except:
+            return None
 
     def __str__(self):
         return self.name

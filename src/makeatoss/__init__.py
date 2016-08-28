@@ -83,7 +83,7 @@ def evaluate(epochs=100, debug=True):
 
     game_ = game()
     sum_of_coins = {}
-    for i in xrange(100):
+    for i in xrange(epochs):
         game_.initialize()
         while game_.simulate(logger=logger):
             logging.debug(game_)
